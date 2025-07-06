@@ -81,8 +81,6 @@ service keymaster-4-1 /vendor/bin/hw/android.hardware.keymaster@4.1-service.trus
     disabled
     seclabel u:r:recovery:s0
 	
-service gatekeeperd /system/bin/gatekeeperd /data/misc/gatekeeper
-    seclabel u:r:recovery:s0	
 	
 service gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service
     interface android.hardware.gatekeeper@1.0::IGatekeeper default
@@ -91,20 +89,13 @@ service gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service
     disabled
     seclabel u:r:recovery:s0
 
-service keymaster_attestation-1-1 /vendor/bin/hw/vendor.mediatek.hardware.keymaster_attestation@1.1-service
-    #interface vendor.mediatek.hardware.keymaster_attestation@1.0::IKeymasterDevice default
-    #interface vendor.mediatek.hardware.keymaster_attestation@1.1::IKeymasterDevice default
-    user root
-    group root
-    disabled
-    seclabel u:r:recovery:s0	
+
 	
 on property:hwservicemanager.ready=true
     start keystore2
     start mobicore
     start keymaster-4-1
     start gatekeeper-1-0
-    start keymaster_attestation-1-1	
 	
 on property:ro.crypto.state=unsupported
     stop mobicore
@@ -128,7 +119,7 @@ on property:twrp.decrypt.done=true
     stop hwservicemanager	
 	
 on boot
-    start postrecoveryboot
+  #  start postrecoveryboot
     start health-hal-2-1
     start boot-hal-1-2
 
@@ -175,7 +166,7 @@ on late-fs
    # exec_start wait_for_keymaster
 
     # Mount RW partitions which need run fsck
-    mount_all /first_stage_ramdisk/fstab.mt6877 --late
+   # mount_all /first_stage_ramdisk/fstab.mt6877 --late
 
 on fs && property:ro.debuggable=0
     # distinguish USB shoulde connect or not, i.e. CDP vs SDP
