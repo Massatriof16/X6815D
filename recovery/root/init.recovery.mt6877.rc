@@ -17,7 +17,7 @@ service postrecoveryboot /system/bin/postrecoveryboot.sh
 
 on fs
     on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
-   # install_keyring
+    install_keyring
     setprop crypto.ready 1
 	
 on post-fs
