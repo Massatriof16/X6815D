@@ -15,10 +15,10 @@ service postrecoveryboot /system/bin/postrecoveryboot.sh
     oneshot
     seclabel u:r:recovery:s0
 
+
 on fs
-    on property:ro.crypto.state=encrypted && property:ro.crypto.type=file
-    install_keyring
-    setprop crypto.ready 1
+setprop crypto.ready 1
+
 	
 on post-fs
 
@@ -67,7 +67,7 @@ service keystore_auth /system/bin/keystore_auth
     disabled
     seclabel u:r:recovery:s0
 	
-service keystore /system/bin/keystore /tmp/misc/keystore
+service keystore2 /system/bin/keystore2 /tmp/misc/keystore
     user root
     group root drmrpc readproc log
     disabled
@@ -89,7 +89,6 @@ service gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service
     disabled
     seclabel u:r:recovery:s0
 
-
 	
 on property:hwservicemanager.ready=true
     start keystore2
@@ -101,80 +100,29 @@ on property:ro.crypto.state=unsupported
     stop mobicore
     stop keymaster-4-1
     stop gatekeeper-1-0
-    stop servicemanager
-    stop hwservicemanager	
-	
+    
 on property:ro.crypto.state=unencrypted
     stop mobicore
     stop keymaster-4-1
     stop gatekeeper-1-0
-    stop servicemanager
-    stop hwservicemanager	
-	
+
 on property:twrp.decrypt.done=true
     stop mobicore
     stop keymaster-4-1
     stop gatekeeper-1-0
-    stop servicemanager
-    stop hwservicemanager	
-	
+    
 on boot
-  #  start postrecoveryboot
-    start health-hal-2-1
-    start boot-hal-1-2
+install_keyring
+start keystore2
+start mobicore
+start keymaster-4-1
+start gatekeeper-1-0
+start health-hal-2-1
+start boot-hal-1-2
 
-service mobicore /vendor/bin/mcDriverDaemon --P1 /mnt/vendor/persist/mcRegistry \
-        -r /vendor/app/mcRegistry/06090000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/020f0000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/05120000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/020b0000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/030b0000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/03100000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/40188311faf343488db888ad39496f9a.drbin \
-        -r /vendor/app/mcRegistry/070c0000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/090b0000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/0f5eed3c3b5a47afacca69a84bf0efad.drbin \
-        -r /vendor/app/mcRegistry/07060000000000000000000000007169.drbin \
-        -r /vendor/app/mcRegistry/4be4f7dc1f2c11e5b5f7727283247c7f.drbin \
-        -r /vendor/app/mcRegistry/08070000000000000000000000008270.drbin \
-        -r /vendor/app/mcRegistry/09080000000000000000000000009381.drbin \
-        -r /vendor/app/mcRegistry/07070000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/07407000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/9073f03a9618383bb1856eb3f990babd.drbin \
-        -r /vendor/app/mcRegistry/5020170115e016302017012521300000.drbin \
-        -r /vendor/app/mcRegistry/05160000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/05070000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/032c0000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/033c0000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/034c0000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/07150000000000000000000000000000.tlbin \
-        -r /vendor/app/mcRegistry/036c0000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/037c0000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/07090000000000000000000000000000.drbin \
-        -r /vendor/app/mcRegistry/6b3f5fa0f8cf55a7be2582587d62d63a.drbin   \
-        -r /vendor/app/mcRegistry/df1edda8627911e980ae507b9d9a7e7d.tabin  \
-        -r /vendor/app/mcRegistry/5020170115e016302017012521300000.tlbin \
-        -r /vendor/app/mcRegistry/06090000000000000000000000000000.tlbin \
-        -r /vendor/app/mcRegistry/08110000000000000000000000000000.tabin \
-        -r /vendor/app/mcRegistry/ce4550edbcb1662566b006ebcb303050.tabin \
-        -r /vendor/app/mcRegistry/e97c270ea5c44c58bcd3384a2fa2539e.tabin \
-        -r /vendor/app/mcRegistry/0706000000000000000000000000004d.tlbin \
-        -r /vendor/app/mcRegistry/511ead0a000000000000000000000000.tabin
-    user root
-    group root
-    disabled
-    seclabel u:r:recovery:s0
 
 # We need vold early for metadata encryption
-on early-fs
-#    start vold
 
-on late-fs
-    # Wait for keymaster
-   # exec_start wait_for_keymaster
-
-    # Mount RW partitions which need run fsck
-   # mount_all /first_stage_ramdisk/fstab.mt6877 --late
 
 on fs && property:ro.debuggable=0
     # distinguish USB shoulde connect or not, i.e. CDP vs SDP
