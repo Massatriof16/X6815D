@@ -111,14 +111,30 @@ on property:twrp.decrypt.done=true
     stop keymaster-4-1
     stop gatekeeper-1-0
     
+service keymaster_attestation-1-1 /vendor/bin/hw/vendor.mediatek.hardware.keymaster_attestation@1.1-service
+    #interface vendor.mediatek.hardware.keymaster_attestation@1.0::IKeymasterDevice default
+    #interface vendor.mediatek.hardware.keymaster_attestation@1.1::IKeymasterDevice default
+    user root
+    group root
+    disabled
+    seclabel u:r:recovery:s0	
+    
+service trustonic /vendor/bin/hw/vendor.trustonic.tee@1.1-service
+    user root
+    group root
+    disabled
+    seclabel u:r:recovery:s0	
+    
 on boot
-install_keyring
+#install_keyring 
 start keystore2
 start mobicore
 start keymaster-4-1
+start keymaster_attestation-1-1
 start gatekeeper-1-0
 start health-hal-2-1
 start boot-hal-1-2
+start trustonic
 
 
 # We need vold early for metadata encryption
